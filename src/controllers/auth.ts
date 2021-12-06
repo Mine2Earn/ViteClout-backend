@@ -24,6 +24,11 @@ async function checkIfLinked(req: any, res: Response) {
     }
 }
 
+/**
+ * Link the user's twitter account to his Vite wallet address.
+ * @param req
+ * @param res
+ */
 async function linkAccount(req: any, res: any) {
     const { vite } = req.body;
     console.log(vite);
