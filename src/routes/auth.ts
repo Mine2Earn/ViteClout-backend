@@ -18,6 +18,10 @@ router.get('/success', isLoggedIn, (req, res) => {
     return res.status(200).json({ message: 'success', user: req.user });
 });
 router.post('/twitter/link', isLoggedIn, linkAccount);
+router.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('http://localhost:3000/');
+});
 
 router.get('/test', isLoggedIn, (req, res) => {
     console.log(req.user);

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Connect, MutlipleQuery, EndConnection } from '../utils/db';
+import { Connect, Query, MutlipleQuery, EndConnection } from '../utils/db';
 import { Connection } from 'mysql';
 
 /**
@@ -12,12 +12,10 @@ import { Connection } from 'mysql';
 async function checkIfLinked(req: any, res: Response) {
     try {
         const connection: any = await Connect();
-        const isLinked: any = await MutlipleQuery(connection, `SELECT COUNT(*) FROM twitter_vite WHERE twitter_name = ?`, [req.user.username]);
-        if (!isLinked) {
-            EndConnection(connection);
+        const isLinked: any = await Query(connection, `SELECT COUNT(*) as isLinked FROM twitter_vite WHERE twitter_name = ?`, [req.user.username]);
+        if (isLinked[0].isLinked) {
             return res.status(200).json({ message: 'Successfully logged in' });
         }
-        EndConnection(connection);
         return res.status(202).json({ message: 'You must link your Vite wallet' });
     } catch (error) {
         res.status(500);
