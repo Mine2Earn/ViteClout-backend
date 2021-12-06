@@ -19,11 +19,14 @@ const database = mysql.createConnection(option);
  * TODO: password VARCHAR lenght must be changed for production
  * TODO: delete avatar bio field
  */
-const request = [];
+const request = [
+    'CREATE TABLE IF NOT EXISTS allowed_twitter(id INT NOT NULL AUTO_INCREMENT, twitter_name VARCHAR(255) NOT NULL, PRIMARY KEY(id));',
+    'CREATE TABLE IF NOT EXISTS twitter_vite(twitter_id VARCHAR(100) NOT NULL, twitter_name VARCHAR(255) NOT NULL, vite_address VARCHAR(255) NOT NULL, PRIMARY KEY(twitter_id));'
+];
 
 request.forEach(element =>
     database.query(element, error => {
-        error ? console.log(error) : console.log(`Request successfull ${element.slice(0, 35)}`);
+        error ? console.log(error) : console.log(`Request successfull ${element.slice(0, 45)}`);
     })
 );
 

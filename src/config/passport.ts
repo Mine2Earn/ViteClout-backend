@@ -9,7 +9,7 @@ passport.use(
             callbackURL: process.env.TWITTER_CALLBACK_URL
         },
         (token, tokenSecret, profile, done) => {
-            console.log(token, tokenSecret, profile);
+            // console.log(token, tokenSecret);
             done(null, profile);
         }
     )

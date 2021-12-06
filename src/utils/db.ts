@@ -63,7 +63,7 @@ export const Query = async (connection: Connection, query: string, values?: stri
  * @param values the values to bind to the query
  * @returns result of the query
  */
-export const MutlipleQuery = async (connection: Connection, query: string, values?: string) => {
+export const MutlipleQuery = async (connection: Connection, query: string, values?: string[]) => {
     return new Promise((resolve, reject) => {
         connection.query(query, values, (error: any, result: any) => {
             if (error) {

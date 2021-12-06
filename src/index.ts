@@ -14,6 +14,7 @@ const port = process.env.PORT || 3600;
 app.use(
     cors({
         origin: 'http://localhost:3000',
+        methods: 'GET,POST,PUT,DELETE',
         credentials: true
     })
 );
@@ -21,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(cookieParser());
-app.use(session({ secret: 'jsuispassecure dedi a eka' }));
+app.use(session({ secret: 'jsuispassecure dedi a eka', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
