@@ -15,13 +15,9 @@ if (!process.env.PRODUCTION) {
 
 const database = mysql.createConnection(option);
 
-/**
- * TODO: password VARCHAR lenght must be changed for production
- * TODO: delete avatar bio field
- */
 const request = [
-    'CREATE TABLE IF NOT EXISTS allowed_twitter(id INT NOT NULL AUTO_INCREMENT, twitter_name VARCHAR(255) NOT NULL, PRIMARY KEY(id));',
-    'CREATE TABLE IF NOT EXISTS twitter_vite(twitter_id VARCHAR(100) NOT NULL, twitter_name VARCHAR(255) NOT NULL, vite_address VARCHAR(255) NOT NULL, PRIMARY KEY(twitter_id));'
+    'CREATE TABLE IF NOT EXISTS transactions (hash_id VARCHAR(250), type INT, holder VARCHAR(250), amount INT, price INT, timestamp INT, token_id VARCHAR(250), PRIMARY KEY (hash_id))',
+    'CREATE TABLE IF NOT EXISTS vuilders (twitter_id INT, twitter_tag VARCHAR(250), has_mint INT, mint_hash VARCHAR(250), address VARCHAR(250), PRIMARY KEY (address))'
 ];
 
 request.forEach(element =>
