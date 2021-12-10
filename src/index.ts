@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(cookieParser());
-app.use(session({ secret: 'jsuispassecure dedi a eka', resave: true, saveUninitialized: true }));
+app.use(session({ secret: 'jsuispassecure dedi a eka', resave: true, saveUninitialized: true, cookie: { sameSite: false } }));
 app.use(passport.initialize());
 app.use(passport.session());
 
