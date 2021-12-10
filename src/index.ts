@@ -15,7 +15,7 @@ const port = process.env.PORT || 3600;
 
 app.use(
     cors({
-        origin: 'http://localhost:3000',
+        origin: '*',
         methods: 'GET,POST,PUT,DELETE',
         credentials: true
     })
@@ -29,16 +29,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use('/auth', authRoutes);
-app.use('/transactions', transactionsRoutes);
-app.use('/vuilders', vuildersRoutes);
-
-app.get('/', (req, res) => {
-    res.send('<a href="/auth/twitter">Sign in with Twitter</a>');
-});
-
-// app.use('/auth', auth); // Route, controller
+app.use('/api/auth', authRoutes);
+app.use('/api/transactions', transactionsRoutes);
+app.use('/api/vuilders', vuildersRoutes);
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`Listening at http://localhost:${port}`);
 });

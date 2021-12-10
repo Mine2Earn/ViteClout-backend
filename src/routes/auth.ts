@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import passport from 'passport';
 import isLoggedIn from '../middlewares/isLoggedIn';
-import { checkIfLinked, linkAccount } from '../controllers/auth';
+import { checkIfLinked, linkAccount, getNonce, verifyNonce } from '../controllers/auth';
 const router = Router();
 
+// router.route('/nonce').get(getNonce).post(verifyNonce);
 router.get('/twitter', passport.authenticate('twitter'));
+router.get('/twitter/islinked', isLoggedIn, checkIfLinked);
+router.post('/twitter/link', isLoggedIn, linkAccount);
 router.get(
     '/twitter/callback',
     passport.authenticate('twitter', {
@@ -12,20 +15,13 @@ router.get(
         failureRedirect: '/twitter'
     })
 );
-router.get('/twitter/islinked', isLoggedIn, checkIfLinked);
 router.get('/success', isLoggedIn, (req, res) => {
     console.log(req.user);
     return res.status(200).json({ message: 'success', user: req.user });
 });
-router.post('/twitter/link', isLoggedIn, linkAccount);
 router.get('/logout', (req, res) => {
     req.logout();
     res.redirect('http://localhost:3000/');
-});
-
-router.get('/test', isLoggedIn, (req, res) => {
-    console.log(req.user);
-    res.status(200).json({ user: req.user });
 });
 
 export default router;
