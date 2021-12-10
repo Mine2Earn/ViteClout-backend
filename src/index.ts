@@ -29,9 +29,9 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionsRoutes);
-app.use('/api/vuilders', vuildersRoutes);
+app.use('/auth', authRoutes);
+app.use('/transactions', transactionsRoutes);
+app.use('/vuilders', vuildersRoutes);
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);
