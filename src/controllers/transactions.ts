@@ -12,7 +12,6 @@ export const getTransactionsFromTokenId = async (req: Request, res: Response) =>
     try {
         const connection: any = await Connect();
         const result: any = await Query(connection, 'SELECT * FROM transactions WHERE token_id = ?', [String(token_id)]);
-        console.log(result);
         return res.status(200).json({ result, message: 'Ok' });
     } catch (error) {
         console.log(error);
@@ -32,7 +31,6 @@ export const countHolderFromTokenId = async (req: Request, res: Response) => {
     try {
         const connection: any = await Connect();
         const result: any = await Query(connection, 'SELECT COUNT(holder) as NumberHolder FROM transactions WHERE token_id = ?', [String(token_id)]);
-        console.log(result);
         return res.status(200).json({ result, message: 'Ok' });
     } catch (error) {
         console.log(error);
@@ -87,6 +85,28 @@ export const getAllBalancesOfHolder = async (req: Request, res: Response) => {
     try {
         const connection: any = await Connect();
         const result: any = await Query(connection, 'SELECT token_id, SUM(amount) as amount FROM transactions WHERE holder = ? GROUP BY token_id', [String(holder)]);
+        return res.status(200).json({ result, message: 'Ok' });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Server Error, please retry.' });
+    }
+};
+
+/**
+ * Endpoint to get all the token info
+ * @param req
+ * @param res
+ * @returns if req.query.orderBy is set to `holders` then the result will be ordered by the number of holders
+ * else it will be ordered by the number of sell
+ */
+export const getAllTokenInfo = async (req: Request, res: Response) => {
+    const query =
+        req.query.orderBy === 'holders'
+            ? 'SELECT token_id, COUNT(holder) as holders, SUM(amount) as numberSell, 0.003 * (SUM(amount) + 1) * (SUM(amount) + 1) as buyPrice, 0.003 * (SUM(amount) - 1) * (SUM(amount) - 1) as sellPrice FROM transactions GROUP BY token_id ORDER BY holders DESC, numberSell DESC'
+            : 'SELECT token_id, COUNT(holder) as holders, SUM(amount) as numberSell, 0.003 * (SUM(amount) + 1) * (SUM(amount) + 1) as buyPrice, 0.003 * (SUM(amount) - 1) * (SUM(amount) - 1) as sellPrice FROM transactions GROUP BY token_id ORDER BY numberSell DESC, holders DESC';
+    try {
+        const connection: any = await Connect();
+        const result: any = await Query(connection, query);
         console.log(result);
         return res.status(200).json({ result, message: 'Ok' });
     } catch (error) {
