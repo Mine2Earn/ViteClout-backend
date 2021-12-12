@@ -4,7 +4,7 @@ import isLoggedIn from '../middlewares/isLoggedIn';
 import { checkIfLinked, linkAccount, getNonce, verifyNonce } from '../controllers/auth';
 const router = Router();
 
-// router.route('/nonce').get(getNonce).post(verifyNonce);
+router.route('/nonce').get(getNonce).post(verifyNonce);
 router.get('/twitter', passport.authenticate('twitter'));
 router.get('/twitter/islinked', isLoggedIn, checkIfLinked);
 router.post('/twitter/link', isLoggedIn, linkAccount);

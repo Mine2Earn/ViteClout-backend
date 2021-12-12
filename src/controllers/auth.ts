@@ -1,3 +1,5 @@
+// @ts-ignore
+import { utils, wallet } from '@vite/vitejs';
 import { Response } from 'express';
 import { Connect, Query } from '../utils/db';
 
@@ -40,29 +42,41 @@ export const linkAccount = async (req: any, res: Response) => {
 };
 
 var lastNonce: number = 1;
-const nonceToAddress: any = {};
+const addressToNonce: any = {};
 
+/**
+ * Endpoint to get the nonce for the given address.
+ * @param req must contains the vite address as `address`
+ * @param res
+ * @returns {Hex} `nonce`
+ */
 export const getNonce = (req: any, res: Response) => {
     const { address } = req.query;
     if (!address) return res.status(400).json({ message: 'Vite address is required.' });
-    const nonce = lastNonce++; // TODO: Generate nonce
-    nonceToAddress[nonce] = address;
+    const nonce = utils.blake2bHex('Hello'); // TODO: Generate nonce
+    addressToNonce[address] = nonce;
     res.status(200).json({ nonce, message: 'Ok.' });
 };
 
+// verify => message, signature, publicKey
+/**
+ * Endpoint to verify the signature of the message. If the signature is valid, link twitter and vite.
+ * @param req must contains encoded nonce as `signed`, `publicKey` and `address`
+ * @param res
+ */
 export const verifyNonce = async (req: any, res: Response) => {
-    const { nonce, publicKey } = req.body;
-    const user = req.user;
-    console.log(req.user);
-    if (!nonce || !publicKey) return res.status(400).json({ message: 'Nonce and public key are required.' });
-    const decoded = nonce; // TODO: Should be decoded
-    const address = nonceToAddress[decoded];
-    console.log(nonceToAddress);
-    console.log(decoded, address);
-    if (!address) return res.status(400).json({ message: 'Nonce or public key is/are invalid.' });
+    const { signed, publicKey, address } = req.body;
+    const message = addressToNonce[address];
+    const temp = wallet.getAddressFromPublicKey(publicKey);
+    console.log(message, temp, address);
+    if (!message) return res.status(400).json({ message: 'Invalid address.' });
+    if (!signed || !publicKey || !address) return res.status(400).json({ message: 'Nonce, public key and address are required.' });
+    if (!wallet.getAddressFromPublicKey(publicKey) === address) return res.status(400).json({ message: 'Invalid address/public key.' });
+    if (!utils.ed25519.verify(message, signed, publicKey)) return res.status(400).json({ message: 'Invalid signature.' });
     try {
         const connection: any = await Connect();
-        const query: any = await Query(connection, 'INSERT INTO vuilders(twitter_id, twitter_tag, address) VALUES (?, ?, ?)', [user.id, user.username, address]);
+        await Query(connection, 'INSERT INTO vuilders(twitter_id, twitter_tag, address) VALUES (?, ?, ?)', [req.user.id, req.user.username, address]);
+        delete addressToNonce[address];
         return res.status(200).json({ message: 'Your twitter and vite address are now linked.' });
     } catch (error) {
         console.log(error);
