@@ -18,7 +18,7 @@ const database = mysql.createConnection(option);
 // has mint default 0
 const request = [
     'CREATE TABLE IF NOT EXISTS transactions (hash_id VARCHAR(250), type INT, holder VARCHAR(250), amount INT, price INT, timestamp INT, token_id VARCHAR(250), PRIMARY KEY (hash_id))',
-    'CREATE TABLE IF NOT EXISTS vuilders (twitter_id BIGINT, twitter_tag VARCHAR(250), has_mint INT, mint_hash VARCHAR(250), address VARCHAR(250), PRIMARY KEY (address))'
+    'CREATE TABLE IF NOT EXISTS vuilders (twitter_id BIGINT, twitter_tag VARCHAR(250), avatar VARCHAR(250), bio VARCHAR(1000), has_mint INT, mint_hash VARCHAR(250), address VARCHAR(250), PRIMARY KEY (address))'
 ];
 
 request.forEach(element =>
