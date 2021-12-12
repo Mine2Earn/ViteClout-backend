@@ -1,13 +1,12 @@
 import { Router } from 'express';
 import passport from 'passport';
 import isLoggedIn from '../middlewares/isLoggedIn';
-import { checkIfLinked, linkAccount, getNonce, verifyNonce } from '../controllers/auth';
+import { checkIfLinked, getNonce, verifyNonce } from '../controllers/auth';
 const router = Router();
 
 router.route('/nonce').get(getNonce).post(verifyNonce);
 router.get('/twitter', passport.authenticate('twitter'));
 router.get('/twitter/islinked', isLoggedIn, checkIfLinked);
-router.post('/twitter/link', isLoggedIn, linkAccount);
 router.get(
     '/twitter/callback',
     passport.authenticate('twitter', {

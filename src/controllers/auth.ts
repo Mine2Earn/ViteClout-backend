@@ -2,6 +2,7 @@
 import { utils, wallet } from '@vite/vitejs';
 import { Response } from 'express';
 import { Connect, Query } from '../utils/db';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Controller that check if the user has already linked his account.
@@ -13,7 +14,7 @@ import { Connect, Query } from '../utils/db';
 export const checkIfLinked = async (req: any, res: Response) => {
     try {
         const connection: any = await Connect();
-        const isLinked: any = await Query(connection, `SELECT COUNT(*) as isLinked FROM twitter_vite WHERE twitter_name = ?`, [req.user.username]);
+        const isLinked: any = await Query(connection, `SELECT COUNT(*) as isLinked FROM vuilders WHERE twitter_id = ?`, [req.user.id]);
         if (isLinked[0].isLinked) {
             return res.status(200).json({ message: 'Successfully logged in.' });
         }
@@ -23,25 +24,6 @@ export const checkIfLinked = async (req: any, res: Response) => {
     }
 };
 
-/**
- * Link the user's twitter account to his Vite wallet address.
- * @param req
- * @param res
- */
-export const linkAccount = async (req: any, res: Response) => {
-    const { vite } = req.query;
-    console.log(vite);
-    if (!vite) return res.status(400).json({ message: 'Vite address is required.' });
-    try {
-        const connection: any = await Connect();
-        await Query(connection, 'INSERT INTO twitter_vite (twitter_id, twitter_name, vite_address) VALUES (?, ?, ?)', [req.user.id, req.user.username, vite]);
-        return res.status(200).json({ message: 'Successfully linked your account.' });
-    } catch (error) {
-        res.status(500);
-    }
-};
-
-var lastNonce: number = 1;
 const addressToNonce: any = {};
 
 /**
@@ -53,7 +35,8 @@ const addressToNonce: any = {};
 export const getNonce = (req: any, res: Response) => {
     const { address } = req.query;
     if (!address) return res.status(400).json({ message: 'Vite address is required.' });
-    const nonce = utils.blake2bHex('Hello'); // TODO: Generate nonce
+    // Generate nonce from uuid because it's secure
+    const nonce = utils.blake2bHex(uuidv4());
     addressToNonce[address] = nonce;
     res.status(200).json({ nonce, message: 'Ok.' });
 };
@@ -67,12 +50,20 @@ export const getNonce = (req: any, res: Response) => {
 export const verifyNonce = async (req: any, res: Response) => {
     const { signed, publicKey, address } = req.body;
     const message = addressToNonce[address];
-    const temp = wallet.getAddressFromPublicKey(publicKey);
-    console.log(message, temp, address);
+
+    // Check if all inputs are valid
     if (!message) return res.status(400).json({ message: 'Invalid address.' });
     if (!signed || !publicKey || !address) return res.status(400).json({ message: 'Nonce, public key and address are required.' });
     if (!wallet.getAddressFromPublicKey(publicKey) === address) return res.status(400).json({ message: 'Invalid address/public key.' });
-    if (!utils.ed25519.verify(message, signed, publicKey)) return res.status(400).json({ message: 'Invalid signature.' });
+
+    // We need this try catch because the signature is not always valid, and if so it will throw an error.
+    try {
+        if (!utils.ed25519.verify(message, signed, publicKey)) return res.status(400).json({ message: 'Invalid signature.' });
+    } catch (e) {
+        return res.status(400).json({ message: 'Invalid signature.' });
+    }
+
+    // If everything is valid, link twitter and vite
     try {
         const connection: any = await Connect();
         await Query(connection, 'INSERT INTO vuilders(twitter_id, twitter_tag, address) VALUES (?, ?, ?)', [req.user.id, req.user.username, address]);
@@ -80,6 +71,6 @@ export const verifyNonce = async (req: any, res: Response) => {
         return res.status(200).json({ message: 'Your twitter and vite address are now linked.' });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: 'Server Error, please retry.' });
+        return res.status(500).json({ message: 'Error: Did your account not already linked ?' });
     }
 };
