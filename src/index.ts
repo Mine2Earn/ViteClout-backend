@@ -10,6 +10,7 @@ import authRoutes from './routes/auth';
 import transactionsRoutes from './routes/transactions';
 import vuildersRoutes from './routes/vuilders';
 import usersRoutes from './routes/users';
+import { init as initListener } from './utils/ABListner';
 
 const app = express();
 const port = process.env.PORT || 3600;
@@ -38,3 +39,6 @@ app.use('/users', usersRoutes);
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);
 });
+
+// Init the account blocks listener
+initListener();
