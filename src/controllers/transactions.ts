@@ -48,7 +48,7 @@ export const countHolderFromTokenId = async (req: Request, res: Response) => {
 export const getLastTransactions = async (req: Request, res: Response) => {
     try {
         const connection: any = await Connect();
-        const result: any = await Query(connection, 'SELECT * FROM transactions ORDER BY timestamp DESC LIMIT 10');
+        const result: any = await Query(connection, 'SELECT * FROM transactions as t JOIN vuilders as v ON t.token_id = v.address ORDER BY timestamp DESC LIMIT 10');
         console.log(result);
         return res.status(200).json({ result, message: 'Ok' });
     } catch (error) {
@@ -67,7 +67,7 @@ export const getAllTransactionsOfHolder = async (req: Request, res: Response) =>
     if (!holder) return res.status(400).json({ message: 'You must give an holder.' });
     try {
         const connection: any = await Connect();
-        const result: any = await Query(connection, 'SELECT * FROM transactions where as t JOIN vuilders as v ON t.token_id = v.address holder = ?', [String(holder)]);
+        const result: any = await Query(connection, 'SELECT * FROM transactions as t JOIN vuilders as v ON t.token_id = v.address WHERE holder = ?', [String(holder)]);
         console.log(result);
         return res.status(200).json({ result, message: 'Ok' });
     } catch (error) {
