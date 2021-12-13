@@ -124,7 +124,7 @@ async function getLastHeight(): Promise<number> {
         const connection: any = await Connect();
         Query(connection, 'SELECT timestamp FROM transactions ORDER BY timestamp desc LIMIT 1')
             .then(res => {
-                resolve(Promise.resolve(res[0]?.timestamp || 1));
+                resolve(Promise.resolve(res[0]?.timestamp || 0));
             })
             .catch(reject);
     });
@@ -146,8 +146,8 @@ async function updateDB(start: number) {
         .then(res => {
             if (res.result == null) return;
             res.result.forEach(ab => {
-                if (ab.vmlog.data === null) return;
                 if (ab.vmlog.topics.includes(BUYEVENTID)) {
+                    if (ab.vmlog.data === null) return;
                     console.log('BUY');
                     const raw_data = Buffer.from(ab.vmlog.data, 'base64').toString('hex');
                     let test: any = abi.decodeLog(ABI, raw_data, ab.vmlog.topics, 'buyEvent');
@@ -156,12 +156,19 @@ async function updateDB(start: number) {
                         addToDB(ab.accountBlockHash, EVENTTYPE.BUY, info.holder, test.value, info.height, test.vftid);
                     });
                 } else if (ab.vmlog.topics.includes(SELLEVENTID)) {
+                    if (ab.vmlog.data === null) return;
                     console.log('SELL');
                     const raw_data = Buffer.from(ab.vmlog.data, 'base64').toString('hex');
                     let test: any = abi.decodeLog(ABI, raw_data, ab.vmlog.topics, 'sellEvent');
 
                     fetchInfoByBlockHash(ab.accountBlockHash).then(info => {
                         addToDB(ab.accountBlockHash, EVENTTYPE.SELL, info.holder, test.value, info.height, test.vftid);
+                    });
+                } else if (ab.vmlog.topics.includes(MINTEVENTID)) {
+                    console.log('MINT');
+                    fetchInfoByBlockHash(ab.accountBlockHash).then(info => {
+                        console.log(info);
+                        addMintToDB(info.holder, ab.accountBlockHash);
                     });
                 }
                 console.log('-------END---------');
@@ -187,6 +194,13 @@ async function addToDB(hashId: string, type: EVENTTYPE, holder: ViteAddress, pri
         timestamp.toString(),
         vftId
     ]).catch(err => {
+        console.log(err.code);
+    });
+}
+
+async function addMintToDB(vuilderAddress: ViteAddress, mintHash: string) {
+    const connection: any = await Connect();
+    Query(connection, 'UPDATE vuilders SET has_mint = ?, mint_hash = ? WHERE address = ?', ['1', mintHash, vuilderAddress]).catch(err => {
         console.log(err.code);
     });
 }
