@@ -7,6 +7,9 @@ import path from 'path';
 import cors from 'cors';
 import passport from './config/passport';
 import authRoutes from './routes/auth';
+import transactionsRoutes from './routes/transactions';
+import vuildersRoutes from './routes/vuilders';
+import { init as initListener } from './utils/ABListner';
 
 const app = express();
 const port = process.env.PORT || 3600;
@@ -22,19 +25,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(cookieParser());
-app.use(session({ secret: 'jsuispassecure dedi a eka', resave: true, saveUninitialized: true }));
+app.use(session({ secret: 'jsuispassecure dedi a eka', resave: true, saveUninitialized: true, cookie: { sameSite: false } }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
 app.use('/auth', authRoutes);
-
-app.get('/', (req, res) => {
-    res.send('<a href="/auth/twitter">Sign in with Twitter</a>');
-});
-
-// app.use('/auth', auth); // Route, controller
+app.use('/transactions', transactionsRoutes);
+app.use('/vuilders', vuildersRoutes);
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`);
+    console.log(`Listening at http://localhost:${port}`);
 });
+
+// Init the account blocks listener
+initListener();
