@@ -110,7 +110,7 @@ export const getAllTokenInfo = async (req: Request, res: Response) => {
     const query =
         req.query.orderBy === 'holders'
             ? 'SELECT token_id, COUNT(holder) as holders, SUM(amount) as numberSell, v.twitter_tag, 0.003 * (SUM(amount) + 1) * (SUM(amount) + 1) as buyPrice, 0.003 * (SUM(amount) - 1) * (SUM(amount) - 1) as sellPrice FROM transactions as t JOIN vuilders as v ON t.token_id = v.address GROUP BY token_id ORDER BY holders DESC, numberSell DESC'
-            : 'SELECT token_id, COUNT(holder) as holders, SUM(amount) as numberSell, 0.003 * (SUM(amount) + 1) * (SUM(amount) + 1) as buyPrice, 0.003 * (SUM(amount) - 1) * (SUM(amount) - 1) as sellPrice FROM transactions as t JOIN vuilders as v ON t.token_id = v.address GROUP BY token_id ORDER BY numberSell DESC, holders DESC';
+            : 'SELECT token_id, COUNT(holder) as holders, SUM(amount) as numberSell, v.twitter_tag, 0.003 * (SUM(amount) + 1) * (SUM(amount) + 1) as buyPrice, 0.003 * (SUM(amount) - 1) * (SUM(amount) - 1) as sellPrice FROM transactions as t JOIN vuilders as v ON t.token_id = v.address GROUP BY token_id ORDER BY numberSell DESC, holders DESC';
     try {
         const connection: any = await Connect();
         const result: any = await Query(connection, query);
