@@ -126,7 +126,9 @@ async function getLastHeight(): Promise<number> {
             .then(res => {
                 resolve(Promise.resolve(res[0]?.timestamp || 0));
             })
-            .catch(reject);
+            .catch(error => {
+                console.error(error);
+            });
     });
 }
 
@@ -183,24 +185,27 @@ async function updateDB(start: number) {
 // Add transaction into the DB
 async function addToDB(hashId: string, type: EVENTTYPE, holder: ViteAddress, price: number, timestamp: number | string, vftId: ViteAddress) {
     if (type == EVENTTYPE.MINT) return; // We only add to db SELL or BUY Events
-
-    const connection: any = await Connect();
-    Query(connection, 'INSERT INTO transactions (hash_id, type, holder, amount, price, timestamp, token_id) VALUES(?,?,?,?,?,?,?)', [
-        hashId,
-        type.toString(),
-        holder,
-        '1',
-        price.toString(),
-        timestamp.toString(),
-        vftId
-    ]).catch(err => {
-        console.log(err.code);
-    });
+    try {
+        const connection: any = await Connect();
+        await Query(connection, 'INSERT INTO transactions (hash_id, type, holder, amount, price, timestamp, token_id) VALUES(?,?,?,?,?,?,?)', [
+            hashId,
+            type.toString(),
+            holder,
+            '1',
+            price.toString(),
+            timestamp.toString(),
+            vftId
+        ]);
+    } catch (error) {
+        console.error(error);
+    }
 }
 
 async function addMintToDB(vuilderAddress: ViteAddress, mintHash: string) {
-    const connection: any = await Connect();
-    Query(connection, 'UPDATE vuilders SET has_mint = ?, mint_hash = ? WHERE address = ?', ['1', mintHash, vuilderAddress]).catch(err => {
-        console.log(err.code);
-    });
+    try {
+        const connection: any = await Connect();
+        await Query(connection, 'UPDATE vuilders SET has_mint = ?, mint_hash = ? WHERE address = ?', ['1', mintHash, vuilderAddress]);
+    } catch (error) {
+        console.log(error);
+    }
 }
