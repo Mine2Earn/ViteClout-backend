@@ -9,6 +9,7 @@ import passport from './config/passport';
 import authRoutes from './routes/auth';
 import transactionsRoutes from './routes/transactions';
 import vuildersRoutes from './routes/vuilders';
+import usersRoutes from './routes/users';
 import { init as initListener } from './utils/ABListner';
 
 const app = express();
@@ -33,6 +34,7 @@ app.use(passport.session());
 app.use('/auth', authRoutes);
 app.use('/transactions', transactionsRoutes);
 app.use('/vuilders', vuildersRoutes);
+app.use('/users', usersRoutes);
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);
