@@ -48,8 +48,11 @@ export const getNonce = (req: any, res: Response) => {
  * @param res
  */
 export const verifyNonce = async (req: any, res: Response) => {
-    const { signed, publicKey, address } = req.body;
+    let { signed, publicKey, address } = req.body;
     const message = addressToNonce[address];
+    publicKey = Buffer.from(publicKey, 'base64').toString('hex');
+    signed = Buffer.from(signed, 'base64').toString('hex');
+    console.log(message, signed, publicKey);
 
     // Check if all inputs are valid
     if (!message) return res.status(400).json({ message: 'Invalid address.' });
