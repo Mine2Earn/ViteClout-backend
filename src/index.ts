@@ -9,6 +9,7 @@ import passport from './config/passport';
 import authRoutes from './routes/auth';
 import transactionsRoutes from './routes/transactions';
 import vuildersRoutes from './routes/vuilders';
+import { init as initListener } from './utils/ABListner';
 
 const app = express();
 const port = process.env.PORT || 3600;
@@ -36,3 +37,6 @@ app.use('/vuilders', vuildersRoutes);
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);
 });
+
+// Init the account blocks listener
+initListener();
