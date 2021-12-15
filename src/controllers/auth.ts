@@ -1,7 +1,7 @@
 // @ts-ignore
 import { utils, wallet } from '@vite/vitejs';
 import { Response } from 'express';
-import { Connect, Query } from '../utils/db';
+import { Connect, Query, MutlipleQuery, EndConnection } from '../utils/db';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -14,8 +14,9 @@ import { v4 as uuidv4 } from 'uuid';
 export const checkIfLinked = async (req: any, res: Response) => {
     try {
         const connection: any = await Connect();
-        const isLinked: any = await Query(connection, `SELECT COUNT(*) as isLinked FROM vuilders WHERE twitter_id = ?`, [req.user.id]);
-        if (isLinked[0].isLinked) {
+        const isLinked: any = await Query(connection, `SELECT address FROM vuilders WHERE twitter_id = ?`, [req.user.twitter_id]);
+        console.log(isLinked[0].address);
+        if (isLinked[0].address) {
             return res.status(200).json({ message: 'Successfully logged in.' });
         }
         return res.status(202).json({ message: 'You must link your Vite wallet.' });
@@ -66,8 +67,25 @@ export const verifyNonce = async (req: any, res: Response) => {
     // If everything is valid, link twitter and vite
     try {
         const connection: any = await Connect();
-        await Query(connection, 'INSERT INTO vuilders(twitter_id, twitter_tag, address) VALUES (?, ?, ?)', [req.user.id, req.user.username, address]);
+        await Query(connection, 'INSERT INTO vuilders(twitter_id, twitter_tag, address) VALUES (?, ?, ?)', [req.user.twitter_id, req.user.username, address]);
         delete addressToNonce[address];
+        return res.status(200).json({ message: 'Your twitter and vite address are now linked.' });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Error: Did your account not already linked ?' });
+    }
+};
+
+export const link = async (req: any, res: Response) => {
+    if (!req.body.address) return res.status(400).json({ message: 'Address is required.' });
+    try {
+        const connection: any = await Connect();
+        const result = await MutlipleQuery(connection, 'SELECT address FROM vuilders WHERE twitter_id = ?', [req.user.twitter_id]);
+        if (result[0].address !== null) {
+            return res.status(400).json({ message: 'You address is already linked' });
+        }
+        await MutlipleQuery(connection, 'UPDATE vuilders SET address = ? WHERE twitter_id = ?', [req.body.address, req.user.twitter_id]);
+        EndConnection(connection);
         return res.status(200).json({ message: 'Your twitter and vite address are now linked.' });
     } catch (error) {
         console.log(error);
