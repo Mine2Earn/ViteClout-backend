@@ -14,6 +14,7 @@
         "@vite/vitejs": "^2.3.16",
         "@vite/vitejs-http": "^2.3.16",
         "@vite/vitejs-ws": "^2.3.16",
+        "axios": "^0.24.0",
         "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "dotenv": "^10.0.0",
