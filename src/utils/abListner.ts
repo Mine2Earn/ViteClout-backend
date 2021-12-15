@@ -3,7 +3,7 @@ import { abi } from '@vite/vitejs';
 import HTTP_RPC from '@vite/vitejs-http';
 
 // HTTPS seems to be more reliable than WS
-const httpProvider = new HTTP_RPC('https://buidl.vite.net/gvite');
+const httpProvider = new HTTP_RPC('https://buidl.vite.net/gvite', 12000);
 
 const contractAddress = 'vite_82001c53924b53d6957a5cdbd07a10e3cd7e33766ebd2673eb';
 
@@ -89,23 +89,22 @@ const BUYEVENTID = abi.encodeLogSignature(ABI, 'buyEvent');
 const SELLEVENTID = abi.encodeLogSignature(ABI, 'sellEvent');
 const MINTEVENTID = abi.encodeLogSignature(ABI, 'mintEvent');
 
-export function init() {
-    let refresh = async () => {
-        try {
-            let startHeight = await getLastHeight();
-            updateDB(startHeight);
-        } catch (error) {
-            console.error(error); // We don't crash the app on error
-        }
-    };
+export const refresh = async () => {
+    try {
+        let startHeight = await getLastHeight();
+        updateDB(startHeight);
+    } catch (error) {
+        console.error(error); // We don't crash the app on error
+    }
+};
 
+export function init() {
     refresh();
     setInterval(refresh, 60 * 1000);
 }
 
 // Return account block information by hash Id
 async function fetchInfoByBlockHash(hashId: string) {
-    console.log('Fetch', hashId);
     try {
         let block = await httpProvider.request('ledger_getAccountBlockByHash', [hashId]);
         console.log('RETURNED');
