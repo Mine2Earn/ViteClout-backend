@@ -21,29 +21,29 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (obj: any, done) => {
     // Change the user object
+    // USERNAME twitter_tag
+    // isVuilder isVuilder
     try {
         const connection: any = await Connect();
         const isInDb = await MutlipleQuery(connection, `SELECT COUNT(*) as isInDb FROM vuilders WHERE twitter_id = ${obj._json.id}`);
         if (!isInDb[0].isInDb) {
             // User not in database you need to add it then return the user via done
-            await MutlipleQuery(connection, `INSERT INTO vuilders (twitter_id, twitter_tag, avatar, bio, has_mint, mint_hash, address) VALUES (?, ?, ?, ?, ?, ?, ?)`, [
-                obj._json.id,
-                obj._json.screen_name,
-                obj._json.profile_image_url,
-                obj._json.description,
-                0,
-                null,
-                null
-            ]);
+            await MutlipleQuery(
+                connection,
+                `INSERT INTO vuilders (twitter_id, twitter_tag, twitter_name, avatar, bio, has_mint, mint_hash, address, isVuilder) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [obj._json.id, obj._json.screen_name, obj._json.name, obj._json.profile_image_url.replace('normal', '400x400'), obj._json.description, 0, null, null, 0]
+            );
             EndConnection(connection);
             done(null, {
                 twitter_id: obj._json.id,
                 twitter_tag: obj._json.screen_name,
-                avatar: obj._json.profile_image_url,
+                twitter_name: obj._json.name,
+                avatar: obj._json.profile_image_url.replace('normal', '400x400'),
                 bio: obj._json.description,
                 has_mint: 0,
                 mint_hash: null,
-                address: null
+                address: null,
+                isVuilder: 0
             });
         } else {
             // Get user in the database
