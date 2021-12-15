@@ -35,6 +35,10 @@ app.use('/auth', authRoutes);
 app.use('/transactions', transactionsRoutes);
 app.use('/vuilders', vuildersRoutes);
 app.use('/users', usersRoutes);
+app.get('/refreshDB', (req, res) => {
+    refresh();
+    res.send({ message: 'Ok' });
+});
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);

@@ -133,6 +133,7 @@ async function getLastHeight(): Promise<number> {
 
 // Fetch all the logs since the account block @start, and add to db BUY and SELL Event
 async function updateDB(start: number) {
+    console.log('Update DB');
     httpProvider
         .request('ledger_getVmLogsByFilter', [
             {
