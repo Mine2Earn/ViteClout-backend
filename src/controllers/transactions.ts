@@ -91,7 +91,9 @@ export const getAllBalancesOfHolder = async (req: Request, res: Response) => {
     if (!holder) return res.status(400).json({ message: 'You must give an holder.' });
     try {
         const connection: any = await Connect();
-        const result: any = await Query(connection, 'SELECT token_id, SUM(amount) as amount FROM transactions WHERE holder = ? GROUP BY token_id', [String(holder)]);
+        const result: any = await Query(connection, 'SELECT token_id, SUM(IF(type = 1, 1, -1)) as amount FROM transactions WHERE holder = ? GROUP BY token_id', [
+            String(holder)
+        ]);
         return res.status(200).json({ result, message: 'Ok' });
     } catch (error) {
         console.log(error);
@@ -109,8 +111,8 @@ export const getAllBalancesOfHolder = async (req: Request, res: Response) => {
 export const getAllTokenInfo = async (req: Request, res: Response) => {
     const query =
         req.query.orderBy === 'holders'
-            ? 'SELECT t.token_id, SUM(IF(type = 1, 1, -1)) as holders, SUM(t.amount) as numberSell, ANY_VALUE(v.twitter_tag) as twitter_tag, 0.003 * (SUM(t.amount) + 1) * (SUM(t.amount) + 1) as buyPrice, 0.003 * (SUM(t.amount) - 1) * (SUM(t.amount) - 1) as sellPrice FROM transactions as t JOIN vuilders as v ON t.token_id = v.address GROUP BY token_id ORDER BY holders DESC, numberSell DESC'
-            : 'SELECT t.token_id, SUM(IF(type = 1, 1, -1)) as holders, SUM(t.amount) as numberSell, ANY_VALUE(v.twitter_tag) as twitter_tag, 0.003 * (SUM(t.amount) + 1) * (SUM(t.amount) + 1) as buyPrice, 0.003 * (SUM(t.amount) - 1) * (SUM(t.amount) - 1) as sellPrice FROM transactions as t JOIN vuilders as v ON t.token_id = v.address GROUP BY token_id ORDER BY numberSell DESC, holders DESC';
+            ? 'SELECT t.token_id, SUM(IF(type = 1, 1, -1)) as circulating_supply, SUM(t.amount) as numberSell, ANY_VALUE(v.twitter_tag) as twitter_tag, 0.003 * (SUM(t.amount) + 1) * (SUM(t.amount) + 1) as buyPrice, 0.003 * (SUM(t.amount) - 1) * (SUM(t.amount) - 1) as sellPrice FROM transactions as t JOIN vuilders as v ON t.token_id = v.address GROUP BY token_id ORDER BY holders DESC, numberSell DESC'
+            : 'SELECT t.token_id, SUM(IF(type = 1, 1, -1)) as circulating_supply, SUM(t.amount) as numberSell, ANY_VALUE(v.twitter_tag) as twitter_tag, 0.003 * (SUM(t.amount) + 1) * (SUM(t.amount) + 1) as buyPrice, 0.003 * (SUM(t.amount) - 1) * (SUM(t.amount) - 1) as sellPrice FROM transactions as t JOIN vuilders as v ON t.token_id = v.address GROUP BY token_id ORDER BY numberSell DESC, holders DESC';
     try {
         const connection: any = await Connect();
         const result: any = await Query(connection, query);
