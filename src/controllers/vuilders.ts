@@ -74,7 +74,6 @@ export const info = async (req: Request, res: Response) => {
  * Endpoint to the number of followers and followed of a Vuilders (on twitter)
  * @param req must contains `twitter_tag`
  * @param res
- * @returns
  */
 export const twitterInfo = async (req: Request, res: Response) => {
     const { twitter_tag } = req.query;
@@ -90,5 +89,24 @@ export const twitterInfo = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'Twitter Error' });
+    }
+};
+
+/**
+ * Endpoint to get if a twitter_tag is vuilder
+ * @param req must contains `twitter_tag`
+ * @param res
+ */
+export const isVuilder = async (req: Request, res: Response) => {
+    const { twitter_tag } = req.query;
+    if (!twitter_tag) return res.status(400).json({ message: 'You must give a twitter_tag.' });
+    try {
+        const connection: any = await Connect();
+        const result = await Query(connection, 'SELECT isVuilder FROM vuilders WHERE twitter_tag = ?', [String(twitter_tag)]);
+        if (!result[0]) return res.status(404).json({ message: 'Vuilder not found.' });
+        return res.status(200).json({ isVuilder: result[0].isVuilder, message: 'Ok' });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Server Error, please retry.' });
     }
 };
