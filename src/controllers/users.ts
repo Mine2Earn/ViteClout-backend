@@ -2,10 +2,10 @@ import { Request, Response } from 'express';
 import { upload } from '../middlewares/upload';
 import { Connect, Query } from '../utils/db';
 
-const up = upload.single('avatar');
-
 export const uploadImage = (req: Request, res: Response) => {
-    up(req, res, err => {
+    console.log('Image ', req.files);
+    upload.single('avatar')(req, res, err => {
+        console.log('Upload error: ' + err);
         if (err) res.status(500).json({ message: 'Error uploading file.' });
         else {
             console.log(req.files);

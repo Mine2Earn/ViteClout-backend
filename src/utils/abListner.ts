@@ -5,7 +5,7 @@ import HTTP_RPC from '@vite/vitejs-http';
 // HTTPS seems to be more reliable than WS
 const httpProvider = new HTTP_RPC('https://buidl.vite.net/gvite');
 
-const contractAddress = 'vite_8792374da714b67944ddb62590108ab1a05c52a1e7d6be8715';
+const contractAddress = 'vite_82001c53924b53d6957a5cdbd07a10e3cd7e33766ebd2673eb';
 
 enum EVENTTYPE {
     BUY = 1,
@@ -63,8 +63,8 @@ const ABI = [
     {
         anonymous: false,
         inputs: [
-            { indexed: true, name: 'addr', type: 'address' },
-            { indexed: true, name: 'vftid', type: 'address' },
+            { indexed: false, name: 'addr', type: 'address' },
+            { indexed: false, name: 'vftid', type: 'address' },
             { indexed: false, name: 'value', type: 'uint256' },
             { indexed: false, name: 'tid', type: 'tokenId' }
         ],
@@ -74,15 +74,15 @@ const ABI = [
     {
         anonymous: false,
         inputs: [
-            { indexed: true, name: 'addr', type: 'address' },
-            { indexed: true, name: 'vftid', type: 'address' },
+            { indexed: false, name: 'addr', type: 'address' },
+            { indexed: false, name: 'vftid', type: 'address' },
             { indexed: false, name: 'value', type: 'uint256' },
             { indexed: false, name: 'tid', type: 'tokenId' }
         ],
         name: 'sellEvent',
         type: 'event'
     },
-    { anonymous: false, inputs: [{ indexed: true, name: 'addr', type: 'address' }], name: 'mintEvent', type: 'event' }
+    { anonymous: false, inputs: [{ indexed: false, name: 'addr', type: 'address' }], name: 'mintEvent', type: 'event' }
 ];
 
 const BUYEVENTID = abi.encodeLogSignature(ABI, 'buyEvent');
@@ -153,9 +153,10 @@ async function updateDB(start: number) {
                     console.log('BUY');
                     const raw_data = Buffer.from(ab.vmlog.data, 'base64').toString('hex');
                     let test: any = abi.decodeLog(ABI, raw_data, ab.vmlog.topics, 'buyEvent');
+                    console.log(test);
 
                     fetchInfoByBlockHash(ab.accountBlockHash).then(info => {
-                        addToDB(ab.accountBlockHash, EVENTTYPE.BUY, info.holder, test.value, info.height, test.vftid);
+                        addToDB(ab.accountBlockHash, EVENTTYPE.BUY, test.addr, test.value, info.height, test.vftid);
                     });
                 } else if (ab.vmlog.topics.includes(SELLEVENTID)) {
                     if (ab.vmlog.data === null) return;
@@ -164,7 +165,7 @@ async function updateDB(start: number) {
                     let test: any = abi.decodeLog(ABI, raw_data, ab.vmlog.topics, 'sellEvent');
 
                     fetchInfoByBlockHash(ab.accountBlockHash).then(info => {
-                        addToDB(ab.accountBlockHash, EVENTTYPE.SELL, info.holder, test.value, info.height, test.vftid);
+                        addToDB(ab.accountBlockHash, EVENTTYPE.SELL, test.addr, test.value, info.height, test.vftid);
                     });
                 } else if (ab.vmlog.topics.includes(MINTEVENTID)) {
                     console.log('MINT');

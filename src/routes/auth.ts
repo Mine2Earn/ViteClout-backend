@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
 import isLoggedIn from '../middlewares/isLoggedIn';
-import { checkIfLinked, getNonce, verifyNonce } from '../controllers/auth';
+import { checkIfLinked, getNonce, verifyNonce, link } from '../controllers/auth';
 const router = Router();
 
 router.route('/nonce').get(getNonce).post(verifyNonce);
@@ -22,5 +22,6 @@ router.get('/logout', (req, res) => {
     req.logout();
     res.redirect('http://localhost:3000/');
 });
+router.post('/link', isLoggedIn, link);
 
 export default router;
