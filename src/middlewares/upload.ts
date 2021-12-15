@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
         const filename = uuidv4() + path.extname(file.originalname);
         try {
             const connection: any = await Connect();
-            await Query(connection, 'UPDATE vuilders SET avatar = ? WHERE twitter_id = ?', [String('http://localhost:3001/images/' + filename), req.user.twitter_id]);
+            await Query(connection, 'UPDATE vuilders SET avatar = ? WHERE twitter_id = ?', [String(`${process.env.API_URL}/images/` + filename), req.user.twitter_id]);
             cb(null, filename);
         } catch (err) {
             console.log(err);
