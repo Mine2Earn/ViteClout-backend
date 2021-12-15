@@ -3,6 +3,8 @@ import passport from 'passport';
 import isLoggedIn from '../middlewares/isLoggedIn';
 import { checkIfLinked, getNonce, verifyNonce, link } from '../controllers/auth';
 const router = Router();
+import dotenv from 'dotenv';
+dotenv.config();
 
 router.route('/nonce').get(getNonce).post(verifyNonce);
 router.get('/twitter', passport.authenticate('twitter'));
@@ -10,7 +12,7 @@ router.get('/twitter/islinked', isLoggedIn, checkIfLinked);
 router.get(
     '/twitter/callback',
     passport.authenticate('twitter', {
-        successRedirect: 'http://localhost:3000/',
+        successRedirect: process.env.FRONT,
         failureRedirect: '/twitter'
     })
 );
@@ -20,7 +22,7 @@ router.get('/success', isLoggedIn, (req, res) => {
 });
 router.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('http://localhost:3000/');
+    res.redirect(process.env.FRONT);
 });
 router.post('/link', isLoggedIn, link);
 
