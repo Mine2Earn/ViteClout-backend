@@ -99,6 +99,7 @@ export const twitterInfo = async (req: Request, res: Response) => {
  */
 export const isVuilder = async (req: Request, res: Response) => {
     const { twitter_tag } = req.query;
+    console.log(twitter_tag);
     if (!twitter_tag) return res.status(400).json({ message: 'You must give a twitter_tag.' });
     try {
         const connection: any = await Connect();
