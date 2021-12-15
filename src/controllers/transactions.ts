@@ -91,7 +91,9 @@ export const getAllBalancesOfHolder = async (req: Request, res: Response) => {
     if (!holder) return res.status(400).json({ message: 'You must give an holder.' });
     try {
         const connection: any = await Connect();
-        const result: any = await Query(connection, 'SELECT token_id, SUM(amount) as amount FROM transactions WHERE holder = ? GROUP BY token_id', [String(holder)]);
+        const result: any = await Query(connection, 'SELECT token_id, SUM(IF(type = 1, 1, -1)) as amount FROM transactions WHERE holder = ? GROUP BY token_id', [
+            String(holder)
+        ]);
         return res.status(200).json({ result, message: 'Ok' });
     } catch (error) {
         console.log(error);
