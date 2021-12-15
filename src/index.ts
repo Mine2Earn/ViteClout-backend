@@ -10,7 +10,7 @@ import authRoutes from './routes/auth';
 import transactionsRoutes from './routes/transactions';
 import vuildersRoutes from './routes/vuilders';
 import usersRoutes from './routes/users';
-import { init as initListener } from './utils/ABListner';
+import { init as initListener, refresh } from './utils/ABListner';
 
 const app = express();
 const port = process.env.PORT || 3600;
@@ -35,6 +35,10 @@ app.use('/auth', authRoutes);
 app.use('/transactions', transactionsRoutes);
 app.use('/vuilders', vuildersRoutes);
 app.use('/users', usersRoutes);
+app.get('/refreshDB', (req, res) => {
+    refresh();
+    res.send({ message: 'Ok' });
+});
 
 app.listen(port, () => {
     console.log(`Listening at http://localhost:${port}`);
